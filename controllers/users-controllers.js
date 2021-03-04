@@ -2,10 +2,8 @@ const errorCreator = require('../errorCreator/errorCreator');
 const { validationResult } = require('express-validator');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { deleteFiles } = require('../constants/fileFunctions');
 
 const User = require('../models/users-models');
-const Recipes = require('../models/recipes-models');
 
 const getUserData = (req, res, next) => {
   User.findById(req.params.id)
@@ -40,20 +38,11 @@ const LikedRecipes = (req, res, next) => {
 const addNewUser = (req, res, next) => {
   const error = validationResult(req);
   if (!error.isEmpty()) {
-    if (req.file) {
-      deleteFiles(req.file.path.replace(/\\/g, '/'));
-    }
     return next(errorCreator(error.errors[0].msg, 422));
-  } else if (!req.file) {
-    return next(errorCreator('Image is required for creating a recipe', 422));
   }
-
-  const image = req.file.path.replace(/\\/g, '/');
-
   User.findOne({ email: req.body.email })
     .then((user) => {
       if (user) {
-        deleteFiles(req.file.path.replace(/\\/g, '/'));
         return next(
           errorCreator('An user already exists with this email!', 409)
         );
@@ -63,12 +52,12 @@ const addNewUser = (req, res, next) => {
         .then((password) => {
           const newUser = new User({
             name: req.body.name,
+            image: req.body.image,
             password,
             email: req.body.email,
             userName: req.body.userName,
-            age: JSON.parse(req.body.age),
-            image,
-            socialMedia: JSON.parse(req.body.socialMedia),
+            age: req.body.age,
+            socialMedia: req.body.socialMedia,
             location: req.body.location,
           });
           return newUser.save();
@@ -86,40 +75,27 @@ const addNewUser = (req, res, next) => {
 const editUserData = (req, res, next) => {
   const error = validationResult(req);
   if (!error.isEmpty()) {
-    if (req.file) {
-      deleteFiles(req.file.path.replace(/\\/g, '/'));
-    }
     return next(
       errorCreator(
         'Please check all the informations entered or enter all the required informations!'
       )
     );
-  } else if (JSON.parse(req.body.age) < 1) {
-    return next(errorCreator('Please enter an age!', 422));
   }
   const { name, email, userName, age, socialMedia, location } = req.body;
   const newUser = {
     name,
     email,
     userName,
-    age: JSON.parse(age),
-    socialMedia: JSON.parse(socialMedia),
+    age,
+    socialMedia,
     location,
   };
 
-  User.findById(req.params.id)
-    .then((user) => {
-      if (req.file) {
-        deleteFiles(user.image);
-        newUser.image = req.file.path.replace(/\\/g, '/');
-      }
-      return User.findByIdAndUpdate(req.params.id, { ...newUser });
-    })
+  User.findByIdAndUpdate(req.params.id, { ...newUser })
     .then(() => {
       res.status(201).json('Successfully updated the user data!');
     })
-    .catch((err) => {
-      console.log(err);
+    .catch(() => {
       next(errorCreator("Can't updated the user data at this moment!"));
     });
 };
@@ -139,7 +115,7 @@ const loginUser = (req, res, next) => {
       if (!isValid) {
         return next(errorCreator('The password entered is incorrect!', 401));
       }
-      //creating a JWT for the logged in user
+
       const token = jwt.sign(
         {
           email: userData.email,

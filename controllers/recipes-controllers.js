@@ -63,33 +63,18 @@ const getRecipesByUsers = (req, res, next) => {
 };
 
 const addNewRecipe = (req, res, next) => {
-  const time = JSON.parse(req.body.cookTime);
   const error = validationResult(req);
   if (!error.isEmpty()) {
     return next(errorCreatorFunction(req, error.errors[0].msg));
-  } else if (
-    JSON.parse(req.body.keyIngred).length === 0 ||
-    JSON.parse(req.body.ingredients).length === 0
-  ) {
-    return next(
-      errorCreatorFunction(req, 'Please enter at-least 1 ingredients!')
-    );
-  } else if (time.hours < 0 || time.minutes < 1 || time.minutes > 59) {
-    return next(
-      errorCreatorFunction(req, 'Please enter valid preparation time!')
-    );
-  } else if (!req.file) {
-    return next(errorCreator('Image is required for creating a recipe', 422));
   }
 
-  const image = req.file.path.replace(/\\/g, '/');
   const newRecipe = new Recipe({
     name: req.body.name,
-    image,
-    cookTime: time,
+    image: req.body.image,
+    cookTime: req.body.cookTime,
     description: req.body.description,
-    keyIngred: JSON.parse(req.body.keyIngred),
-    ingredients: JSON.parse(req.body.ingredients),
+    keyIngred: req.body.keyIngred,
+    ingredients: req.body.ingredients,
     procedure: req.body.procedure,
     creatorId: ObjectId(req.userId),
   });
@@ -113,40 +98,22 @@ const addNewRecipe = (req, res, next) => {
 };
 
 const updateRecipe = (req, res, next) => {
-  const time = JSON.parse(req.body.cookTime);
   const error = validationResult(req);
   if (!error.isEmpty()) {
     return next(errorCreatorFunction(req, error.errors[0].msg));
-  } else if (
-    JSON.parse(req.body.keyIngred).length === 0 ||
-    JSON.parse(req.body.ingredients).length === 0
-  ) {
-    return next(
-      errorCreatorFunction(req, 'Please enter at-least 1 ingredients!')
-    );
-  } else if (time.hours < 0 || time.minutes < 1 || time.minutes > 59) {
-    return next(
-      errorCreatorFunction(req, 'Please enter valid preparation time!')
-    );
   }
 
   const updateRecipe = {
     name: req.body.name,
-    cookTime: time,
+    image: req.body.image,
+    cookTime: req.body.cookTime,
     description: req.body.description,
-    keyIngred: JSON.parse(req.body.keyIngred),
-    ingredients: JSON.parse(req.body.ingredients),
+    keyIngred: req.body.keyIngred,
+    ingredients: req.body.ingredients,
     procedure: req.body.procedure,
   };
 
-  Recipe.findById(req.params.id)
-    .then((recipe) => {
-      if (req.file) {
-        deleteFiles(recipe.image);
-        updateRecipe.image = req.file.path.replace(/\\/g, '/');
-      }
-      return Recipe.findByIdAndUpdate(req.params.id, updateRecipe);
-    })
+  Recipe.findByIdAndUpdate(req.params.id, updateRecipe)
     .then(() => {
       res.status(200).json({ message: 'Updated the recipe!' });
     })
@@ -157,7 +124,6 @@ const updateRecipe = (req, res, next) => {
 
 const updateLikeValue = (req, res) => {
   let type;
-  let userId;
   let recipeId;
   Recipe.findById(req.params.id)
     .then((recipe) => {
@@ -165,7 +131,6 @@ const updateLikeValue = (req, res) => {
         return next(errorCreator('No such recipe exists!', 404));
       }
       recipeId = recipe._id;
-      userId = recipe.creatorId;
       const includeCurrUser = recipe.likedBy.includes(req.userId);
       if (includeCurrUser) {
         recipe.likedBy = recipe.likedBy.filter((user) => user !== req.userId);
@@ -204,7 +169,6 @@ const updateLikeValue = (req, res) => {
 };
 
 const deleteRecipe = (req, res, next) => {
-  let recipeLikes;
   Recipe.findById(req.params.id)
     .then((recipe) => {
       if (recipe.creatorId.toString() !== req.userId.toString()) {
@@ -212,8 +176,6 @@ const deleteRecipe = (req, res, next) => {
           errorCreator('You are not authenticated to delete this recipe', 404)
         );
       }
-      recipeLikes = recipe.likes;
-      deleteFiles(recipe.image);
       return User.findById(req.userId);
     })
     .then((user) => {
@@ -221,7 +183,6 @@ const deleteRecipe = (req, res, next) => {
         (recipe) => recipe.toString() !== req.params.id.toString()
       );
       user.totalRecipes--;
-      user.totalLikes -= recipeLikes;
       return user.save();
     })
     .then(() => {

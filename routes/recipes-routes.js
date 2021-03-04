@@ -24,6 +24,23 @@ router.post(
   authMiddleware,
   [
     body('name').notEmpty().withMessage('Please enter the name of the recipe!'),
+    body('image')
+      .notEmpty()
+      .withMessage('Please enter an image for the recipe!'),
+    body('cookTime.hours')
+      .notEmpty()
+      .isFloat({ min: 0 })
+      .withMessage('Please enter a valid hour!'),
+    body('cookTime.minutes')
+      .notEmpty()
+      .isFloat({ min: 1, max: 59 })
+      .withMessage('Please enter a valid minute!'),
+    body('keyIngred')
+      .isArray({ min: 1 })
+      .withMessage('Please enter at-least 1 ingredient!'),
+    body('ingredients')
+      .isArray({ min: 1 })
+      .withMessage('Please enter at-least 1 ingredient!'),
     body('description')
       .isLength({ min: 10, max: 400 })
       .withMessage('Please enter a description between 10 to 400 words!'),
@@ -42,9 +59,26 @@ router.patch(
   authMiddleware,
   [
     body('name').notEmpty().withMessage('Please enter the name of the recipe!'),
+    body('image')
+      .notEmpty()
+      .withMessage('Please enter an image for the recipe!'),
+    body('cookTime.hours')
+      .notEmpty()
+      .isFloat({ min: 0 })
+      .withMessage('Please enter a valid hour!'),
+    body('cookTime.minutes')
+      .notEmpty()
+      .isFloat({ min: 1, max: 59 })
+      .withMessage('Please enter a valid minute!'),
     body('description')
       .isLength({ min: 10, max: 400 })
       .withMessage('Please enter a description between 10 to 400 words!'),
+    body('keyIngred')
+      .isArray({ min: 1 })
+      .withMessage('Please enter at-least 1 ingredient!'),
+    body('ingredients')
+      .isArray({ min: 1 })
+      .withMessage('Please enter at-least 1 ingredient!'),
     body('procedure')
       .isLength({ min: 30 })
       .withMessage(
