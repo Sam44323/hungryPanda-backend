@@ -1,0 +1,2 @@
+exports.ADD_LIKES = 'ADD_LIKES';
+exports.REMOVE_LIKES = 'REMOVE_LIKES';

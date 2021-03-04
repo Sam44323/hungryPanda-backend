@@ -1,0 +1,8 @@
+{
+  "env": {
+    "DB_USER": "suranjan_mern",
+    "DB_PASSWORD": "suranjan_mern",
+    "DB_NAME": "hungryPanda",
+    "JWT_KEY": "HUNGRY_PANDA_JWT_SECRET"
+  }
+}
