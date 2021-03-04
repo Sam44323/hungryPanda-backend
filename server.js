@@ -47,6 +47,10 @@ app.use((req, res, next) => {
   next();
 });
 
+app.get('/nice/api', (req, res) => {
+  res.status(200).json({ message: 'This is a nice api!' });
+});
+
 app.use('/hungrypandaAPI/recipes', recipesRoutes);
 app.use('/hungrypandaAPI/users', usersRoutes);
 
