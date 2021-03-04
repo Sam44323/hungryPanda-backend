@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyparser = require('body-parser');
 const mongoose = require('mongoose');
-const apiKeys = require('../config');
+const apiKeys = require('./config');
 const multer = require('multer');
 
 const app = express();
