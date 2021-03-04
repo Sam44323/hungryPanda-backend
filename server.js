@@ -29,7 +29,6 @@ app.use((error, req, res, next) => {
   res.status(error.code || 500);
   res.json({ message: error.message || 'An unknown error occured!' });
 });
-//process.env.PORT ||
 mongoose
   .connect(apiKeys.MONGO_URI, {
     useNewUrlParser: true,
@@ -39,7 +38,7 @@ mongoose
   })
   .then(() => {
     console.log('Connected to the database');
-    app.listen(5000, () => {
+    app.listen(process.env.PORT || 5000, () => {
       console.log('Connected to the server!');
     });
   })
