@@ -145,7 +145,7 @@ const loginUser = (req, res, next) => {
           email: userData.email,
           userId: userData._id.toString(),
         },
-        'HUNGRY_PANDA_JWT_SECRET',
+        process.env.JWT_KEY,
         {
           expiresIn: '1h', // token will become invalid after one hour
         }
