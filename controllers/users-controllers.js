@@ -81,9 +81,10 @@ const editUserData = (req, res, next) => {
       )
     );
   }
-  const { name, email, userName, age, socialMedia, location } = req.body;
+  const { name, image, email, userName, age, socialMedia, location } = req.body;
   const newUser = {
     name,
+    image,
     email,
     userName,
     age,
