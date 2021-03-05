@@ -135,6 +135,31 @@ const loginUser = (req, res, next) => {
     });
 };
 
+const deleteUser = (req, res, next) => {
+  let recipesId;
+  User.findById(req.userId)
+    .select({ recipes: 1, image: 1, _id: 0 })
+    .then((data) => {
+      recipesId = data.recipes;
+      return User.updateMany(
+        { likedRecipes: { $in: recipesId } },
+        { $pullAll: { likedRecipes: recipesId } }
+      );
+    })
+    .then(() =>
+      Recipes.updateMany(
+        { likedBy: req.userId },
+        { $pull: { likedBy: req.userId }, $inc: { likes: -1 } }
+      )
+    )
+    .then(() => Recipes.deleteMany({ _id: { $in: recipesId } }))
+    .then(() => User.findByIdAndDelete(req.userId))
+    .then(() => res.status(201).json({ message: 'Deleted the user!' }))
+    .catch(() => {
+      return next(errorCreator('Please try again!'));
+    });
+};
+
 const logUserOut = (req, res, next) => {
   res.status(200).json({ message: 'You are logged out!' });
 };
@@ -145,3 +170,4 @@ exports.addNewUser = addNewUser;
 exports.editUserData = editUserData;
 exports.loginUser = loginUser;
 exports.logUserOut = logUserOut;
+exports.deleteUser = deleteUser;
