@@ -10,7 +10,7 @@ module.exports = (req, res, next) => {
   const token = req.get('Authorization').split(' ')[1];
   let decodedToken;
   try {
-    decodedToken = jwt.verify(token, process.env.JWT_KEY);
+    decodedToken = jwt.verify(token, 'HUNGRY_PANDA_JWT_SECRET');
   } catch (err) {
     return next(errorCreator('Unauthenticated User!', 500));
   }

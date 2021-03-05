@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const User = require('../models/users-models');
+const Recipes = require('../models/recipes-models');
 
 const getUserData = (req, res, next) => {
   User.findById(req.params.id)
@@ -138,7 +139,7 @@ const loginUser = (req, res, next) => {
 const deleteUser = (req, res, next) => {
   let recipesId;
   User.findById(req.userId)
-    .select({ recipes: 1, image: 1, _id: 0 })
+    .select({ recipes: 1 })
     .then((data) => {
       recipesId = data.recipes;
       return User.updateMany(
