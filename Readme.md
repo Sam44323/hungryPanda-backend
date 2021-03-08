@@ -8,6 +8,10 @@ _website-link_
 
 [hungrypanda-app](https://hungrypanda-app.herokuapp.com/ 'hungrypanda-app')
 
+## **Note**
+
+_As the test version of heroku is being used for hosting this site i.e. it uses only one dyno, so it might take a minute to load because after an hour of inactivity the servers goes to sleep!_
+
 ---
 
 ## **Features**
